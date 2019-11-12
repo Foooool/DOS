@@ -4,29 +4,55 @@
 
 from argparse import ArgumentParser
 
+import matplotlib.pyplot as plt
+import networkx as nx
+
+from Node import Node
+
+
 def main():
     # 解析命令行参数
     arg_parser = ArgumentParser('Distributed Optimization Simulator',
-                                usage='Discover new words from corpus according to term frequency, aggreagation coefficient, min neighboring entropy and max neighboring entropy.')
-
-    arg_parser.add_argument('input_path',
-                            help='The path to the corpus. It should be a plain text file or a dir containing only plain text files.')
-    arg_parser.add_argument('output_path', help='The path to generate the reports.')
-    arg_parser.add_argument('--dictionary_path', default=os.path.join(os.path.dirname(jieba.__file__), 'dict.txt'),
-                            help='The path to the dictionary (text), each line of which contains item, POS-tag and frequency, seperated by spaces. Terms satisfying the filter condition but in the dictionary are not considered as new words.')
-    arg_parser.add_argument('--latin', nargs=4, default=default_latin, type=int,
-                            help='The parameters include term frequency, aggreagation coefficient, max neighboring entropy and min neighboring entropy, which also applies for --bigram, --unigram_2 and --unigram_3. This argument set thresholds for latin words, including pure digits, pure letters and the combination of letters and digits such as "iphone 7".')
-    arg_parser.add_argument('--bigram', nargs=4, default=default_bigram, type=float,
-                            help='Bigrams are defined as words that are composed of two unigram terms. Reference argument --latin for further help.')
-    arg_parser.add_argument('--unigram_2', nargs=4, default=default_unigram2, type=float,
-                            help='A term which is composed of two Chinese characters and cannot be divided into other words. Reference argument --latin for further help.')
-    arg_parser.add_argument('--unigram_3', nargs=4, default=default_unigram3, type=float,
-                            help='A term which is composed of three Chinese characters and cannot be divided into other words. Reference argument --latin for further help.')
-    arg_parser.add_argument('--iteration', default=default_iteration, type=float,
-                            help='The next iteration will base its dictionary as the original dictionary plusing the new words discovered in the last iteration.')
-    arg_parser.add_argument('--verbose', default=default_verbose, choices=[0, 1, 2], type=int,
-                            help="Determines the verbosity of the reports. *** 0: only new word items and their term frequency.*** 1: min neighboring entropy and max neighboring entropy are supplemented. *** 2:left and right neighboring entropy are added.")
+                                usage='一个分布式优化模拟器')
+    arg_parser.add_argument('--direct', action='store_true', default=False,
+                            help='如果加上该选项，则创建有向图')
+    arg_parser.add_argument('--graphfile', default='', help='网络定义文件')
+    arg_parser.add_argument('--nodenum', default=0, help='节点个数')
     args = arg_parser.parse_args()
+
+    # 构建网络
+    g = nx.DiGraph() if args.direct else nx.Graph()
+
+    if args.graphfile:
+        # 从文件导入网络
+        with open(args.graphfile) as f:
+            pass
+    else:
+        # 节点
+        node_num = args.nodenum
+        while node_num <= 0:
+            node_num = int(input('请输入节点数：'))
+        node_list = [Node('Node{}'.format(i + 1)) for i in range(node_num)]
+        g.add_nodes_from([str(i) for i in list(range(1, node_num + 1))])
+
+        # 边
+        print('请输入网络的边，空格或换行符分割的数字对，如1,2 3,4')
+        edge_list = []
+        x = input('>')
+        while x != '':
+            edge_list.extend([t.split(',') for t in x.split()])
+            x = input('>')
+        g.add_edges_from(edge_list)
+
+    # 日志
+    print('网络生成成功')
+    print('节点：', list(g.nodes))
+    print('边：', list(g.edges))
+
+    # 绘图
+    plt.figure()
+    nx.draw(g, with_labels=True, pos=nx.spring_layout(g))
+    plt.show()
 
 
 if __name__ == '__main__':

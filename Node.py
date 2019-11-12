@@ -46,3 +46,9 @@ class Node(object):
 
     def __str__(self):
         return self.name
+
+
+class DGDNode(Node):
+    """
+    DGD算法实现类
+    """

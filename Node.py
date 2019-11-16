@@ -24,6 +24,14 @@ class Node(object):
 
         self.receive_buffer = []
 
+    def set_data(self, data):
+        """
+        设置数据
+        :param data: 数据
+        """
+        self.data = data
+        print('[+]\t节点{}接受到数据{}'.format(self.name, self.data['x'].shape))
+
     def step(self):
         """
         进行一次算法迭代

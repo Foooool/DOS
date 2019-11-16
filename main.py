@@ -7,7 +7,9 @@ from argparse import ArgumentParser
 import matplotlib.pyplot as plt
 import networkx as nx
 
+from Controller import Controller
 from Node import Node
+from datasets import mnist
 
 
 def main():
@@ -24,7 +26,7 @@ def main():
     g = nx.DiGraph() if args.direct else nx.Graph()
 
     if args.graphfile:
-        # 从文件导入网络
+        # 从文件导入网络结构
         with open(args.graphfile) as f:
             pass
     else:
@@ -53,6 +55,15 @@ def main():
     plt.figure()
     nx.draw(g, with_labels=True, pos=nx.spring_layout(g))
     plt.show()
+
+    # 数据
+    x, y, _, _, _, _ = mnist(num_train=10000)
+
+    # 创建控制器
+    controller = Controller(g, node_list, {'x': x, 'y': y})
+
+    # 分发数据
+    controller.distribute_data()
 
 
 if __name__ == '__main__':
